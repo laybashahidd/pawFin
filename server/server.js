@@ -28,9 +28,10 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('Connected to DB');
     const PORT = 4000;
-    app.listen(PORT, () => {
-      console.log(`Listening on port ${PORT}`)
-    });
+    app.listen(4000, '0.0.0.0', () => {
+  console.log("Server running on port 4000");
+});
+
   })
   .catch((err) => {
     console.error(err);
