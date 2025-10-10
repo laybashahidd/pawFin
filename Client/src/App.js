@@ -1,5 +1,6 @@
-import Auth from "./Auth";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Auth from "./Components/Auth/Auth";
 import Navbar from "./Components/NavBar/Navbar";
 import Home from "./Components/Home/Home";
 import Footer from "./Components/Footer/Footer";
