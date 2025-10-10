@@ -20,6 +20,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend is running!' });
 });
 
+const cors = require('cors');
+app.use(cors());
+
 app.use('/api', petRouter);
 app.use('/form', AdoptFormRoute);
 app.use('/admin', AdminRoute);
