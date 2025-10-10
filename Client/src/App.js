@@ -1,4 +1,4 @@
-import React from "react";
+import Auth from "./Auth";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Components/NavBar/Navbar";
 import Home from "./Components/Home/Home";
@@ -9,7 +9,6 @@ import Pets from "./Components/Pets/Pets";
 import AdoptForm from "./Components/AdoptForm/AdoptForm";
 import AdminLogin from "./Components/AdminPanel/AdminLogin";
 import "./App.css";
-import Auth from "./Auth";
 
 
 const Layout = ({ children }) => (
