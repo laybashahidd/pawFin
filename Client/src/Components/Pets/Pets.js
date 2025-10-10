@@ -12,7 +12,7 @@ const Pets = () => {
         // Fetch from backend API
         // Use full URL if frontend is served from different origin
         // const response = await fetch("http://16.171.160.67/api/allPets");
-        const response = await fetch("http://16.171.160.67/api/allPets");
+        const response = await fetch("/api/allPets");
 
         if (!response.ok) {
           throw new Error("An error occurred while fetching pets");
