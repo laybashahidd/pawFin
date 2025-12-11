@@ -11,8 +11,8 @@ class TestConfig {
   async getDriver() {
     const options = new chrome.Options();
     
-    // Headless disabled for Windows (localhost connectivity issues)
-    // Enable only in Docker/Linux environments
+    // Headless mode enabled for EC2/CI deployment
+    options.addArguments('--headless');
     options.addArguments('--no-sandbox');
     options.addArguments('--disable-dev-shm-usage');
     options.addArguments('--disable-gpu');

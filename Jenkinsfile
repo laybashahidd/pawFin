@@ -2,67 +2,84 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+        BASE_URL = 'http://localhost:3000'
+        BACKEND_URL = 'http://localhost:4000'
     }
     
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                checkout scm
+                echo 'Cloning repository...'
+                git branch: 'main', url: 'https://github.com/laybashahidd/pawFin.git'
             }
         }
         
-        stage('Build Docker Images') {
+        stage('Build Test Image') {
             steps {
-                script {
-                    sh 'docker-compose build'
-                }
-            }
-        }
-        
-        stage('Start Services') {
-            steps {
-                script {
-                    sh 'docker-compose up -d backend frontend mongodb'
-                    // Wait for services to be ready
-                    sh 'sleep 30'
+                echo 'Building Docker image for tests...'
+                dir('tests') {
+                    sh '''
+                        docker build -t pawfinds-selenium-tests .
+                    '''
                 }
             }
         }
         
         stage('Run Selenium Tests') {
             steps {
-                script {
-                    sh 'docker-compose --profile testing up --abort-on-container-exit selenium-tests'
+                echo 'Running Selenium tests in Docker container...'
+                dir('tests') {
+                    sh '''
+                        docker run --rm \
+                            --network host \
+                            -e BASE_URL=${BASE_URL} \
+                            -e BACKEND_URL=${BACKEND_URL} \
+                            -e CI=true \
+                            pawfinds-selenium-tests
+                    '''
                 }
-            }
-        }
-        
-        stage('Publish Test Reports') {
-            steps {
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'test-reports',
-                    reportFiles: 'test-report.html',
-                    reportName: 'Selenium Test Report'
-                ])
             }
         }
     }
     
     post {
         always {
-            script {
-                sh 'docker-compose down -v'
-            }
+            echo 'Cleaning up Docker images...'
+            sh 'docker system prune -f || true'
         }
         success {
-            echo 'Pipeline executed successfully!'
+            emailext (
+                subject: "✅ SUCCESS: PawFinds Tests Passed - Build #${BUILD_NUMBER}",
+                body: """
+                    <h2>✅ All Tests Passed Successfully!</h2>
+                    <p><strong>Project:</strong> PawFinds</p>
+                    <p><strong>Build Number:</strong> ${BUILD_NUMBER}</p>
+                    <p><strong>Build URL:</strong> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                    <p><strong>Triggered by:</strong> ${env.GIT_COMMITTER_NAME ?: 'GitHub Push'}</p>
+                    <br>
+                    <p>All Selenium tests have passed. Great job!</p>
+                """,
+                mimeType: 'text/html',
+                recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                to: '${GIT_COMMITTER_EMAIL}'
+            )
         }
         failure {
-            echo 'Pipeline failed!'
+            emailext (
+                subject: "❌ FAILED: PawFinds Tests Failed - Build #${BUILD_NUMBER}",
+                body: """
+                    <h2>❌ Test Execution Failed</h2>
+                    <p><strong>Project:</strong> PawFinds</p>
+                    <p><strong>Build Number:</strong> ${BUILD_NUMBER}</p>
+                    <p><strong>Build URL:</strong> <a href="${BUILD_URL}">${BUILD_URL}</a></p>
+                    <p><strong>Triggered by:</strong> ${env.GIT_COMMITTER_NAME ?: 'GitHub Push'}</p>
+                    <br>
+                    <p>Please check the build logs for details.</p>
+                """,
+                mimeType: 'text/html',
+                recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                to: '${GIT_COMMITTER_EMAIL}'
+            )
         }
     }
 }
