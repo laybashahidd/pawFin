@@ -5,6 +5,7 @@ If you want to adopt a pet, you fill out a form with your details. The admin get
 
 So, PawFinds makes it easy to find new homes for pets and connect them with people who want to adopt.
 
+will this be considered as a change?
 
 ## Introduction
 PawFinds is a web application that connects pet lovers with pets in need of a home. Our platform simplifies the process of pet adoption by providing a seamless user experience.
